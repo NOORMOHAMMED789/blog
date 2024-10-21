@@ -9,6 +9,14 @@ const nextConfig = {
       "images.app.goo.gl",
     ],
   },
+  async rewrites() {
+    return [
+      {
+        source: "/api/:path*",
+        destination: "https://blog-api-xi8k.onrender.com/:path*",
+      },
+    ];
+  },
 };
 
 export default nextConfig;

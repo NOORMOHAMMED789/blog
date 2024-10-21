@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 
 export default function EditBlogPage() {
   const router = useRouter();
-  const { id } = router.query; // Get blog ID from the URL
+  const { id } = router.query; 
   const [excerpt, setExcerpt] = useState("");
   const [content, setContent] = useState("");
   const [category, setCategory] = useState("Tech");
@@ -11,10 +11,9 @@ export default function EditBlogPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch blog details when the component mounts or id changes
   useEffect(() => {
     const fetchBlogDetails = async () => {
-      if (!id) return; // Ensure id is available
+      if (!id) return; 
 
       try {
         const response = await fetch(`http://localhost:5001/get-blog/${id}`);
@@ -22,7 +21,6 @@ export default function EditBlogPage() {
           throw new Error("Failed to fetch blog details");
         }
         const data = await response.json();
-        // Set the fetched blog data to state
         setExcerpt(data.blog_excerpt);
         setContent(data.main_content);
         setCategory(data.category);
@@ -47,7 +45,6 @@ export default function EditBlogPage() {
     };
 
     try {
-      // Send JSON data to the backend API
       const response = await fetch(`http://localhost:5001/update-blog/${id}`, {
         method: "PUT",
         headers: {
@@ -57,7 +54,7 @@ export default function EditBlogPage() {
       });
 
       if (response.ok) {
-        router.push("/blogs"); // Redirect to the blog list after successful update
+        router.push("/blogs"); 
       } else {
         console.error("Failed to update blog");
       }

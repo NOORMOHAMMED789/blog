@@ -17,7 +17,7 @@ export default function AllBlogListingPage() {
       try {
         console.log("Fetching blogs...");
         const response = await fetch(
-          "http://localhost:5001/get-all-blogs"
+          "https://blog-api-xi8k.onrender.com/get-all-blogs"
         );
 
         if (!response.ok) {

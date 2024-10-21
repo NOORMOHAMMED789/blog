@@ -1,12 +1,41 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 
-export default function CreateBlogPage() {
+export default function EditBlogPage() {
+  const router = useRouter();
+  const { id } = router.query; // Get blog ID from the URL
   const [excerpt, setExcerpt] = useState("");
   const [content, setContent] = useState("");
   const [category, setCategory] = useState("Tech");
   const [featureImage, setFeatureImage] = useState("");
-  const router = useRouter();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch blog details when the component mounts or id changes
+  useEffect(() => {
+    const fetchBlogDetails = async () => {
+      if (!id) return; // Ensure id is available
+
+      try {
+        const response = await fetch(`http://localhost:5001/get-blog/${id}`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch blog details");
+        }
+        const data = await response.json();
+        // Set the fetched blog data to state
+        setExcerpt(data.blog_excerpt);
+        setContent(data.main_content);
+        setCategory(data.category);
+        setFeatureImage(data.feature_image);
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBlogDetails();
+  }, [id]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -19,8 +48,8 @@ export default function CreateBlogPage() {
 
     try {
       // Send JSON data to the backend API
-      const response = await fetch("http://localhost:5001/create-blog", {
-        method: "POST",
+      const response = await fetch(`http://localhost:5001/update-blog/${id}`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
@@ -28,16 +57,17 @@ export default function CreateBlogPage() {
       });
 
       if (response.ok) {
-        setTimeout(() => {
-          router.push("/blogs");
-        }, 1000); // Add a slight delay before redirecting
+        router.push("/blogs"); // Redirect to the blog list after successful update
       } else {
-        console.error("Failed to create blog");
+        console.error("Failed to update blog");
       }
     } catch (error) {
       console.error("Error:", error);
     }
   };
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
 
   return (
     <div className="min-h-screen bg-gray-100 flex justify-center items-center px-4 py-8">
@@ -45,9 +75,7 @@ export default function CreateBlogPage() {
         onSubmit={handleSubmit}
         className="bg-white p-8 shadow-lg rounded-lg w-full max-w-lg"
       >
-        <h1 className="text-2xl font-bold mb-6 text-gray-800">
-          Create New Blog
-        </h1>
+        <h1 className="text-2xl font-bold mb-6 text-gray-800">Edit Blog</h1>
 
         {/* Blog Excerpt */}
         <div className="mb-4">
@@ -107,10 +135,11 @@ export default function CreateBlogPage() {
           type="submit"
           className="bg-blue-500 text-white px-4 py-2 rounded-lg w-full"
         >
-          Submit
+          Update
         </button>
+
         {/* Back Button */}
-        <div className="flex justify-between mt-10">
+        <div className="flex justify-between mt-11 z-40">
           <button
             onClick={() => router.push("/blogs")}
             className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"

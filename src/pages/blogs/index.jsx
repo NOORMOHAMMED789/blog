@@ -1,45 +1,35 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
+import Image from "next/image";
 
-// Dummy blog data with categories
-const blogPosts = [
-  {
-    id: 1,
-    title: "Tech Post 1",
-    excerpt: "Excerpt for Tech Post 1",
-    category: "Tech",
-    imageUrl: "https://via.placeholder.com/400x300?text=Tech+Post+1", // Placeholder image
-  },
-  {
-    id: 2,
-    title: "Food Post 1",
-    excerpt: "Excerpt for Food Post 1",
-    category: "Food",
-    imageUrl: "https://via.placeholder.com/400x300?text=Food+Post+1", // Placeholder image
-  },
-  {
-    id: 3,
-    title: "Tech Post 2",
-    excerpt: "Excerpt for Tech Post 2",
-    category: "Tech",
-    imageUrl: "https://via.placeholder.com/400x300?text=Tech+Post+2", // Placeholder image
-  },
-  {
-    id: 4,
-    title: "Lifestyle Post 1",
-    excerpt: "Excerpt for Lifestyle Post 1",
-    category: "Lifestyle",
-    imageUrl: "https://via.placeholder.com/400x300?text=Lifestyle+Post+1", // Placeholder image
-  },
-  // More posts...
-];
-
-const postsPerPage = 10; // 10 posts per page
+const postsPerPage = 6;
 
 export default function AllBlogListingPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [blogPosts, setBlogPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const router = useRouter();
+
+  useEffect(() => {
+    const fetchBlogs = async () => {
+      try {
+        const response = await fetch("http://localhost:5001/get-all-blogs");
+        if (!response.ok) {
+          throw new Error("Failed to fetch blogs");
+        }
+        const data = await response.json();
+        setBlogPosts(data);
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBlogs();
+  }, []);
 
   // Filter blogs by category
   const filteredPosts =
@@ -62,6 +52,34 @@ export default function AllBlogListingPage() {
   const handleAddBlogClick = () => {
     router.push("/blogs/create-blog");
   };
+
+  const handleEditClick = (id) => {
+    router.push(`/blogs/edit/${id}`);
+  };
+
+  const handleDeleteClick = async (id) => {
+    if (confirm("Are you sure you want to delete this blog?")) {
+      try {
+        const response = await fetch(
+          `http://localhost:5001/delete-blog/${id}`,
+          {
+            method: "DELETE",
+          }
+        );
+        if (!response.ok) {
+          throw new Error("Failed to delete blog");
+        }
+        // Remove the deleted blog post from the state
+        setBlogPosts(blogPosts.filter((post) => post.blog_id !== id));
+      } catch (error) {
+        console.error("Error deleting blog:", error);
+        setError(error.message);
+      }
+    }
+  };
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-500 to-purple-500 flex flex-col items-center text-white px-4 py-8">
@@ -98,12 +116,16 @@ export default function AllBlogListingPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {currentPosts.map((post) => (
             <div
-              key={post.id}
-              onClick={() => handlePostClick(post.id)}
+              key={post.blog_id}
               className="bg-white bg-opacity-90 cursor-pointer shadow-lg rounded-lg overflow-hidden transition-transform transform hover:scale-105 hover:bg-opacity-100"
+              onClick={() => handlePostClick(post.blog_id)} // Navigate to blog post on click
             >
-              <img
-                src={post.imageUrl}
+              <Image
+                src={
+                  post.feature_image || "https://via.placeholder.com/400x300"
+                }
+                width={400}
+                height={300}
                 alt={post.title}
                 className="w-full h-48 object-cover"
               />
@@ -111,10 +133,30 @@ export default function AllBlogListingPage() {
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">
                   {post.title}
                 </h2>
-                <p className="text-gray-700 mb-4">{post.excerpt}</p>
+                <p className="text-gray-700 mb-4">{post.blog_excerpt}</p>
                 <p className="text-sm text-gray-500">
                   Category: {post.category}
                 </p>
+                <div className="flex justify-between mt-4">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEditClick(post.blog_id);
+                    }}
+                    className="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteClick(post.blog_id);
+                    }}
+                    className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
             </div>
           ))}

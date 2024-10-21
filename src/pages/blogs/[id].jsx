@@ -15,7 +15,7 @@ export default function BlogDetailPage() {
       if (!id) return; // Ensure id is available
 
       try {
-        const response = await fetch(`http://localhost:5001/get-blog/${id}`);
+        const response = await fetch(`https://blog-api-xi8k.onrender.com/get-blog/${id}`);
         if (!response.ok) {
           throw new Error("Failed to fetch blog details");
         }

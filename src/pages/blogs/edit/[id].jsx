@@ -16,7 +16,7 @@ export default function EditBlogPage() {
       if (!id) return; 
 
       try {
-        const response = await fetch(`http://localhost:5001/get-blog/${id}`);
+        const response = await fetch(`https://blog-api-xi8k.onrender.com/get-blog/${id}`);
         if (!response.ok) {
           throw new Error("Failed to fetch blog details");
         }
@@ -45,7 +45,7 @@ export default function EditBlogPage() {
     };
 
     try {
-      const response = await fetch(`http://localhost:5001/update-blog/${id}`, {
+      const response = await fetch(`https://blog-api-xi8k.onrender.com/update-blog/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

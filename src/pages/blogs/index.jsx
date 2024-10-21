@@ -15,13 +15,20 @@ export default function AllBlogListingPage() {
   useEffect(() => {
     const fetchBlogs = async () => {
       try {
-        const response = await fetch("http://localhost:5001/get-all-blogs");
+        console.log("Fetching blogs...");
+        const response = await fetch(
+          "https://blog-api-xi8k.onrender.com/get-all-blogs"
+        );
+
         if (!response.ok) {
-          throw new Error("Failed to fetch blogs");
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
+
         const data = await response.json();
+        console.log("Blogs fetched successfully:", data); // Log fetched data
         setBlogPosts(data);
       } catch (error) {
+        console.error("Error fetching blogs:", error); // Log the error
         setError(error.message);
       } finally {
         setLoading(false);
@@ -29,7 +36,7 @@ export default function AllBlogListingPage() {
     };
 
     fetchBlogs();
-  }, []);
+  }, []); // Empty dependency array to fetch only once
 
   // Filter blogs by category
   const filteredPosts =
@@ -61,7 +68,7 @@ export default function AllBlogListingPage() {
     if (confirm("Are you sure you want to delete this blog?")) {
       try {
         const response = await fetch(
-          `http://localhost:5001/delete-blog/${id}`,
+          `https://blog-api-xi8k.onrender.com/delete-blog/${id}`,
           {
             method: "DELETE",
           }

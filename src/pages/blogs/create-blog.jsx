@@ -19,7 +19,7 @@ export default function CreateBlogPage() {
 
     try {
       // Send JSON data to the backend API
-      const response = await fetch("http://localhost:5001/create-blog", {
+      const response = await fetch("https://blog-api-xi8k.onrender.com/create-blog", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

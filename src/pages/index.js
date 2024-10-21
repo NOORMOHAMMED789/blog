@@ -14,15 +14,22 @@ export default function Home() {
 
   useEffect(() => {
     if(counter === 0){
-      router.push("/posts")
+      router.push("/blogs")
     }
   },[counter,router])
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center">
-      <h1 className="text-2xl font-bold mb-4">
-        Welcome to the blog content platform
-      </h1>
-      <p className="text-lg">Counter: {counter}</p>
+    <div className="min-h-screen bg-gradient-to-r from-blue-500 to-purple-500 flex flex-col justify-center items-center text-white px-4">
+      <div className="bg-white text-gray-900 shadow-xl rounded-lg p-8 max-w-lg text-center">
+        <h1 className="text-4xl font-extrabold mb-6">
+          Welcome to the Blog Content Platform
+        </h1>
+        <p className="text-lg mb-4">
+          Get ready to explore some amazing content. You will be redirected
+          soon!
+        </p>
+        <div className="text-6xl font-bold mb-6 animate-pulse">{counter}</div>
+        <p className="italic">Redirecting to posts in {counter} seconds...</p>
+      </div>
     </div>
   );
 }
